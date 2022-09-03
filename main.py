@@ -4,7 +4,7 @@ import shutil
 
 from PIL import Image
 
-
+# TODO Currently assumes the height is the longest dimension, need to detect which is to correctly apply rescale
 def resize_image(input_path: str, output_path: str, max_height: int, max_width: int):
     original_image = Image.open(input_path)
     print(f"Original size : {original_image.size}")
@@ -31,6 +31,8 @@ def reduce_image_size(input_path: str, output_path: str, max_size_bytes: int):
     # Otherwise keep reducing the quality until the max size is under the size limit
     current_quality = 99
     while current_size >= max_size_bytes:
+        if current_quality <= 1:
+            raise Exception("Unable to reduce image size below maximum requested")
         input_image = Image.open(input_path)
         input_image.save(output_path, optimize=True, quality=current_quality)
         current_quality -= 1
@@ -39,7 +41,7 @@ def reduce_image_size(input_path: str, output_path: str, max_size_bytes: int):
 
 
 if __name__ == '__main__':
-    INPUT_PATH = 'ute.jpg'
+    INPUT_PATH = 'original.jpg'
     OUPUT_PATH = 'processed.jpeg'
     resize_image(input_path=INPUT_PATH, output_path='resized.jpeg', max_height=699, max_width=699)
     reduce_image_size(input_path='resized.jpeg', output_path=OUPUT_PATH, max_size_bytes=99 * 1024)
